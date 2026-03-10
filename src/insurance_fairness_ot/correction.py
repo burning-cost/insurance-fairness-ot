@@ -21,6 +21,21 @@ from ._validators import (
 )
 
 
+def _concat_xd(X: pl.DataFrame, D: pl.DataFrame) -> pl.DataFrame:
+    """Horizontal-concat X and D, dropping any X columns that already appear in D.
+
+    Polars raises DuplicateError if the same column name appears twice in a
+    horizontal concat. In the typical usage pattern the model is trained on a
+    DataFrame that includes the protected attribute both in X (for feature
+    engineering) and in D. We always want D's version to win, so we drop the
+    overlap from X before concatenating.
+    """
+    overlap = [c for c in X.columns if c in D.columns]
+    if overlap:
+        X = X.drop(overlap)
+    return pl.concat([X, D], how="horizontal")
+
+
 class LindholmCorrector:
     """Discrimination-free price via Lindholm (2022) marginalisation.
 
@@ -63,7 +78,7 @@ class LindholmCorrector:
 
         model_fn: callable taking a full DataFrame (X + D columns) and returning
                   a 1-D array of predictions.
-        X_calib: non-protected feature columns.
+        X_calib: non-protected feature columns (may also contain protected cols).
         D_calib: protected attribute columns.
         exposure: per-policy exposure weights. Defaults to ones.
         y_obs: observed losses; required for bias_correction='kl'.
@@ -86,7 +101,7 @@ class LindholmCorrector:
             self._portfolio_weights[attr] = weights
 
         # Compute bias correction factor on calibration data
-        XD_calib = pl.concat([X_calib, D_calib], how="horizontal")
+        XD_calib = _concat_xd(X_calib, D_calib)
         mu_hat = model_fn(XD_calib)
         h_star = self._marginalise(model_fn, X_calib, D_calib)
 
@@ -136,9 +151,8 @@ class LindholmCorrector:
         # zeta(d) = E[mu_hat(X, d)] under empirical X distribution
         zeta: dict = {}
         for d in d_vals:
-            X_with_d = X_calib.clone()
             D_fixed = D_calib.with_columns(pl.lit(d).alias(attr))
-            XD = pl.concat([X_with_d, D_fixed], how="horizontal")
+            XD = _concat_xd(X_calib, D_fixed)
             mu_d = model_fn(XD)
             zeta[d] = float(np.average(mu_d, weights=exposure))
 
@@ -197,7 +211,7 @@ class LindholmCorrector:
                     continue
                 # Replace protected attribute with d_val for all observations
                 D_fixed = D.clone().with_columns(pl.lit(d_val).alias(attr))
-                XD = pl.concat([X, D_fixed], how="horizontal")
+                XD = _concat_xd(X, D_fixed)
                 mu_d = model_fn(XD)
                 if self.log_space:
                     h_log += omega * np.log(np.maximum(mu_d, 1e-15))

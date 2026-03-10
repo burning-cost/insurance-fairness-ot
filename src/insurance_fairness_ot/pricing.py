@@ -8,7 +8,7 @@ import numpy as np
 import polars as pl
 
 from .causal import CausalGraph, PathDecomposition, PathDecomposer
-from .correction import LindholmCorrector, WassersteinCorrector
+from .correction import LindholmCorrector, WassersteinCorrector, _concat_xd
 from ._validators import validate_exposure
 
 
@@ -144,7 +144,7 @@ class DiscriminationFreePrice:
         n = X_calib.shape[0]
         exposure = validate_exposure(exposure, n)
 
-        XD_calib = pl.concat([X_calib, D_calib], how="horizontal")
+        XD_calib = _concat_xd(X_calib, D_calib)
 
         if self._combined_fn is not None:
             if self._lindholm is not None:
@@ -198,7 +198,7 @@ class DiscriminationFreePrice:
 
         n = X.shape[0]
         exposure = validate_exposure(exposure, n)
-        XD = pl.concat([X, D], how="horizontal")
+        XD = _concat_xd(X, D)
 
         protected_attrs = self.graph.get_protected_nodes()
         freq_fair = None

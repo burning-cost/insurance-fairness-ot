@@ -3,6 +3,12 @@ from __future__ import annotations
 
 import numpy as np
 
+# numpy.trapz was renamed to numpy.trapezoid in NumPy 2.0
+try:
+    from numpy import trapezoid as _trapezoid
+except ImportError:
+    from numpy import trapz as _trapezoid  # type: ignore[attr-defined]
+
 
 def exposure_weighted_ecdf(
     values: np.ndarray, exposure: np.ndarray
@@ -119,4 +125,4 @@ def wasserstein_distance_1d(
     fy, ey_y = exposure_weighted_ecdf(y, wy)
     qx = quantile_function(ex, ey_x, u)
     qy = quantile_function(fy, ey_y, u)
-    return float(np.sqrt(np.trapz((qx - qy) ** 2, u)))
+    return float(np.sqrt(_trapezoid((qx - qy) ** 2, u)))

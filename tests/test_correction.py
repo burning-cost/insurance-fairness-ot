@@ -171,7 +171,8 @@ class TestLindholmCorrector:
 
     def test_kl_bias_correction(self):
         X, D = make_smoke_data()
-        y_obs = lindholm_model(pl.concat([X, D], how="horizontal"))
+        # X already contains gender, so pass X directly to get y_obs
+        y_obs = lindholm_model(X)
         corrector = LindholmCorrector(["gender"], bias_correction="kl", log_space=False)
         corrector.fit(lindholm_model, X, D, y_obs=y_obs)
         result = corrector.transform(lindholm_model, X, D)
