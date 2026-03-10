@@ -75,8 +75,9 @@ class TestValidateDataframeAligned:
         validate_dataframe_aligned(df, "test", 3)  # no exception
 
     def test_wrong_shape_raises(self):
+        # df has 3 rows, expected 5 — message will say "must have 5 rows, got 3"
         df = pl.DataFrame({"a": [1, 2, 3]})
-        with pytest.raises(ValueError, match="3 rows"):
+        with pytest.raises(ValueError, match="got 3"):
             validate_dataframe_aligned(df, "test", 5)
 
 
