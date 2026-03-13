@@ -1,7 +1,7 @@
 """Causal graph specification and path decomposition for insurance fairness."""
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Callable
 
 import networkx as nx
@@ -285,7 +285,6 @@ class PathDecomposer:
             direct_shift = total_shift
 
         # Re-scale so effects are on original premium scale (multiplicative factors)
-        best_log = np.log(best_est)
         return PathDecomposition(
             direct_effect=direct_shift * best_est,
             proxy_effect=proxy_shift * best_est,

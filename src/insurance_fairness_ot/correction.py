@@ -7,7 +7,6 @@ import numpy as np
 import polars as pl
 
 from ._utils import (
-    apply_ot_correction,
     barycenter_quantile,
     exposure_weighted_ecdf,
     wasserstein_distance_1d,
