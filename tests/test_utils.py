@@ -78,7 +78,7 @@ class TestBarycenterQuantile:
         # Barycenter of identical distributions should equal the distribution
         test_u = np.array([0.1, 0.5, 0.9])
         orig = quantile_function(x, y, test_u)
-        bar_q = quantile_function(np.linspace(min(x), max(x), len(u_grid)), u_grid, test_u)
+        _ = quantile_function(np.linspace(min(x), max(x), len(u_grid)), u_grid, test_u)
         # Check they're close — use direct evaluation
         bar_at_test = np.interp(test_u, u_grid, bar)
         assert np.allclose(orig, bar_at_test, atol=0.1)

@@ -14,9 +14,6 @@ def make_smoke_data(n_women=264, n_men=325):
 
     Smoker/non-smoker x gender health insurance example.
     """
-    rng = np.random.default_rng(42)
-    n = n_women + n_men
-
     gender = ["F"] * n_women + ["M"] * n_men
     # Smoking split: 133/264 women smoke, 24/325 men smoke
     n_smoke_f = 133
@@ -96,10 +93,10 @@ class TestLindholmCorrector:
 
         # The discrimination-free price for a smoker = weighted average of
         # mu(smoker, F) * P(F) + mu(smoker, M) * P(M)
-        h_star_smoker = corrector.transform(lindholm_model, X_test, D_test)
+        _ = corrector.transform(lindholm_model, X_test, D_test)
 
         # Expected: 0.2406 * 0.4482 + 0.1667 * 0.5518 = 0.200 (approx)
-        expected = (32 / 133) * (264 / 589) + (4 / 24) * (325 / 589)
+        # expected = (32 / 133) * (264 / 589) + (4 / 24) * (325 / 589)
         # The test data mean should approximate expected
         # We check uncorrected marginalisation value
         # Compute without bias correction

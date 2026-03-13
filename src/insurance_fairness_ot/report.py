@@ -112,7 +112,6 @@ class FairnessReport:
         Returns one row per protected group with mean best-estimate and
         fair premium, and the percentage change.
         """
-        n = D.shape[0]
         rows = []
         for attr in self.result.protected_attrs:
             if attr not in D.columns:

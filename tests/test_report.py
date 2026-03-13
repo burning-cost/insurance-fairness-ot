@@ -7,7 +7,7 @@ import tempfile
 import os
 
 from insurance_fairness_ot.causal import CausalGraph
-from insurance_fairness_ot.pricing import DiscriminationFreePrice, PricingResult
+from insurance_fairness_ot.pricing import DiscriminationFreePrice
 from insurance_fairness_ot.report import FairnessReport, FCAReport
 
 
