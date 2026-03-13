@@ -192,6 +192,14 @@ These are implemented as regression tests in `tests/test_correction.py`.
 - Côté, Genest, Abdallah (2025). *A fair price to pay: Exploiting causal graphs for fairness in insurance*. Journal of Risk and Insurance 92(1), 33–75.
 - Charpentier, Hu, Ratz (2023). *Mitigating Discrimination in Insurance with Wasserstein Barycenters*. arXiv:2306.12912.
 
+## Performance
+
+No formal benchmark yet. The Lindholm marginalisation requires one model prediction per protected group value per policyholder. For a binary protected characteristic (e.g. gender), this doubles the number of predictions. For a 5-category characteristic (e.g. age band used as a protected attribute), it is 5x. On a portfolio of 100,000 policies with 2 protected groups, this takes 1–5 seconds with a typical CatBoost model.
+
+The Wasserstein barycenter correction (correction='wasserstein') adds optimal transport computation via POT. On n=10,000 calibration samples with a 5-category protected attribute, expect 10–60 seconds depending on the regularisation parameter. For production use with large portfolios, fit the corrector on a calibration subsample (default behaviour) and apply to the full book in one pass.
+
+The portfolio bias correction factor should be close to 1.0 (within ±5%) for well-calibrated models. Values outside this range indicate the model has substantial discrimination baked into its calibration, not just its predictions. This is the primary diagnostic: if the proportional correction factor is 1.15, the model is overcharging the disadvantaged group by 15% on average after marginalisation.
+
 ## Licence
 
 MIT
